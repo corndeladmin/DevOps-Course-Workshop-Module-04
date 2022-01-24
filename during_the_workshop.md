@@ -478,13 +478,13 @@ Run your ansible playbook using this command:
 
 The output should look a bit like this:  
 <pre>
-PLAY [Install Chimera on new web servers] ******************************************************************************************************************
+PLAY [Install Chimera on new web servers] ********************
 
-TASK [Gathering Facts] *************************************************************************************************************************************
+TASK [Gathering Facts] ********************
 ok: [3.10.179.156]
 ok: [35.178.196.136]
 
-TASK [Create log folder] ***********************************************************************************************************************************
+TASK [Create log folder] ********************
 changed: [35.178.196.136]
 changed: [3.10.179.156]
 </pre>
@@ -497,13 +497,13 @@ Now run the playbook again...
 
 The output should look different:  
 <pre>
-PLAY [Install Chimera on new web servers] ******************************************************************************************************************
+PLAY [Install Chimera on new web servers] ********************
 
-TASK [Gathering Facts] *************************************************************************************************************************************
+TASK [Gathering Facts] ********************
 ok: [3.10.179.156]
 ok: [35.178.196.136]
 
-TASK [Create log folder] ***********************************************************************************************************************************
+TASK [Create log folder] ********************
 ok: [35.178.196.136]
 ok: [3.10.179.156]
 </pre>
@@ -521,116 +521,666 @@ You can run the playbook just to check that everything is in the correct state, 
 
 **Step 8.** Write the rest of the playbook
 
-Below is the rest of the playbook.  
-Copy it into your playbook a section or two at a time.  
-**After each section, run the playbook** so you can see Ansible making the changes.  
+Now it's over to you to write the rest of the Ansible playbook.  
+I'll give you a list of tasks to add below.
+
+For each task, you'll need to:  
+* Work out which Module you need
+* Work out which options you need for the module  
+  You can look this up on the Ansible docs
+* Work out whether you need to run the module as root user (`become: yes`)  
+  Hint: you can just try this out - it will fail and tell you if it doesn't have permissions to permform the task
+
+For reference, here's the Ansible Modules that we'll be using:
+* [ansible.builtin.copy](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html)
+* [ansible.builtin.file](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html)
+* [ansible.builtin.pip](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/pip_module.html)
+* [ansible.builtin.systemd](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html)
+* [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html)
+
+Write your playbook one task at a time.  
+**After each new task, run the playbook** so you can check if it works and you vcan see Ansible making the changes.  
 Notice how each task moves shows `changed` the first time and `ok` subsequently.
 
-Have a look through the Ansible documentation to see what all the Modules do and what all the options mean.  
-We're using these Modules:
-* [ansible.builtin.file](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html)
-* [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html)
-* [ansible.builtin.pip](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/pip_module.html)
-* [amazon.aws.aws_s3](https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_s3_module.html)
-* [ansible.builtin.systemd](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html)
+Here's the list of tasks you'll need to add:
 
-Here's the playbook:  
-<pre>
----
-- name: Install Chimera on new web servers
-  hosts: webservers
-  remote_user: ec2-user
+**Task to add: Install jq (command-line JSON processor)**  
+You can use the Yum package manager to install jq.  
+We want to make sure jq is installed, but we don't always need to keep it up to date.  
 
-  tasks:
-  - name: Create log folder
-    ansible.builtin.file:
-      path: /var/log/chimera
-      state: directory
-      mode: '777'
-    become: yes
+<details>
+<summary>Hints:</summary>
 
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Install jq (command-line JSON processor)</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+      - name: Install jq (command-line JSON processor)</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to use the Yum package manager to install jq.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html">ansible.builtin.yum</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install jq (command-line JSON processor)
+    ansible.builtin.yum:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which package do we want to install?</summary>
+    The name of the package we want to install is **jq**<br>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install jq (command-line JSON processor)
+    ansible.builtin.yum:
+      name: jq</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: What state do we want the package to be in?</summary>
+    We want to make sure jq is installed, but we don't always need to keep it up to date.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install jq (command-line JSON processor)
+    ansible.builtin.yum:
+      name: jq
+      state: present</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding the syntax that tells Ansible to run this as a root user (<b>become: yes</b>).<br>
+    Note: The <b>become: yes</b> configuration is part of the <b>Task</b> configuration, not part of the <b>Module</b> configuration.<br>
+    How far tabbed in do you think it should be?
+    <details>
+    <summary>Show me the code</summary>
+    Note: <b>become: yes</b> is at the same level as "name: Install jq" and "ansibile.builtin.yum:" (not the same level as "name: jq" and "state: present")<br>
+    <pre>
   - name: Install jq (command-line JSON processor)
     ansible.builtin.yum:
       name: jq
       state: present
-    become: yes
+    become: yes</pre>
+    </details>
+  </details><br>
 
+</details><br>
+
+
+**Task to add: Create folder for the Chimera webapp binary**  
+We want to create the folder `/opt/chimera/bin`  
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Create folder for the Chimera webapp binary</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+      - name: Create folder for the Chimera webapp binary</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to create a folder.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html">ansible.builtin.file</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Create folder for the Chimera webapp binary
+    ansible.builtin.file:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which folder do we want to create?</summary>
+    We want to create the folder <b>/opt/chimera/bin</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Create folder for the Chimera webapp binary
+    ansible.builtin.file:
+      path: /opt/chimera/bin</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: What state do we want the folder to be in?</summary>
+    We need to specify that it's a <b>folder</b> that we're creating, not a <b>file</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Create folder for the Chimera webapp binary
+    ansible.builtin.file:
+      path: /opt/chimera/bin
+      state: directory</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
   - name: Create folder for the Chimera webapp binary
     ansible.builtin.file:
       path: /opt/chimera/bin
       state: directory
-    become: yes
+    become: yes</pre>
+    </details>
+  </details><br>
 
+</details><br>
+
+
+**Task to add: Install pip (python package manager)**  
+You can use the Yum package manager to install pip.  
+We want to make sure pip is installed, but we don't always need to keep it up to date.  
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Install pip (python package manager)</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install pip (python package manager)</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to use the Yum package manager to install pip.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html">ansible.builtin.yum</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install pip (python package manager)
+    ansible.builtin.yum:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which package do we want to install?</summary>
+    The name of the package we want to install is **pip**<br>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install pip (python package manager)
+    ansible.builtin.yum:
+      name: pip</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: What state do we want the package to be in?</summary>
+    We want to make sure pip is installed, but we don't always need to keep it up to date.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install pip (python package manager)
+    ansible.builtin.yum:
+      name: pip
+      state: present</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
   - name: Install pip (python package manager)
     ansible.builtin.yum:
       name: pip
       state: present
-    become: yes
+    become: yes</pre>
+    </details>
+  </details><br>
 
-  - name: Install a python library that we will need for AWS file copying
+</details><br>
+
+
+**Task to add: Install a python library (boto3) that we will need later**  
+You can use the pip package manager to install the library.  
+The library that we need is called **boto3**.  
+We want to make sure boto3 is installed, but we don't always need to keep it up to date.  
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Install a python library (boto3) that we will need later</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install a python library (boto3) that we will need later</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to use the pip package manager to install boto3.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/pip_module.html">ansible.builtin.pip</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install a python library (boto3) that we will need later
+    ansible.builtin.pip:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which package do we want to install?</summary>
+    The name of the package we want to install is **boto3**<br>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install a python library (boto3) that we will need later
+    ansible.builtin.pip:
+      name: boto3</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: What state do we want the package to be in?</summary>
+    We want to make sure boto3 is installed, but we don't always need to keep it up to date.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install a python library (boto3) that we will need later
+    ansible.builtin.pip:
+      name: boto3
+      state: present</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Install a python library (boto3) that we will need later
     ansible.builtin.pip:
       name: boto3
       state: present
-    become: yes
+    become: yes</pre>
+    </details>
+  </details><br>
 
-  - name: Copy webapp from AWS S3 bucket to new binaries folder
-    amazon.aws.aws_s3:
-      mode: get
-      bucket: jwg-devops-module4   #################### CHANGE THIS (although it will work if needed) ####################
-      object: webapp
-      dest: /opt/chimera/bin/webapp
-      overwrite: false
-    become: yes
+</details><br>
 
-  - name: Make webapp executable
-    ansible.builtin.file:
-      path: /opt/chimera/bin/webapp
-      state: file
+
+**Task to add: Copy webapp program from Control Node to Managed Nodes**  
+The Control Node (the VM that you're running Ansible on) has the webapp program running on it.  
+It's file name is `webapp` and it's in the folder `/opt/chimera/bin/`.  
+We want to copy this file to the Managed Nodes.  
+We want to put it in the same folder on the Managed Nodes (`/opt/chimera/bin/`).  
+The file we're copying is a program, so make sure it is executable.
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Copy webapp program from Control Node to Managed Nodes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp program from Control Node to Managed Nodes</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to copy a file from the local to remote machine.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">ansible.builtin.copy</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp program from Control Node to Managed Nodes
+    ansible.builtin.copy:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which file do we want to copy?</summary>
+    It's file name is `webapp` and it's in the folder `/opt/chimera/bin/`.<br>
+    You'll need to join the folder and file name to give the full path<br>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp program from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: Where do we want the file to end up?</summary>
+    We want to put it in the same folder on the Managed Nodes: <b>/opt/chimera/bin/</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp program from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp
+      dest: /opt/chimera/bin/</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Does the file need any special permissions?</summary>
+    Remember to make the file executable.<br>
+    The docs for this aren't very clear - a nice way of doing this is using the mode <b>'+x'</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp program from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp
+      dest: /opt/chimera/bin/
+      mode: '+x'</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 6: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp program from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp
+      dest: /opt/chimera/bin/
       mode: '+x'
-    become: yes
+    become: yes</pre>
+    </details>
+  </details><br>
 
-  - name: Copy start-webapp.sh from AWS S3 bucket to new binaries folder
-    amazon.aws.aws_s3:
-      mode: get
-      bucket: jwg-devops-module4   #################### CHANGE THIS (although it will work if needed) ####################
-      object: start-webapp.sh
-      dest: /opt/chimera/bin/start-webapp.sh
-      overwrite: false
-    become: yes
+</details><br>
 
-  - name: Make start-webapp.sh executable
-    ansible.builtin.file:
-      path: /opt/chimera/bin/start-webapp.sh
-      state: file
+
+**Task to add: Copy start-webapp.sh from Control Node to Managed Nodes**  
+Here's another file to copy from the Control Node to the Managed Nodes.  
+It's file name is `start-webapp.sh` and it's in the folder `/opt/chimera/bin/`.  
+We want to put it in the same folder on the Managed Nodes (`/opt/chimera/bin/`).  
+The file we're copying is a program, so make sure it is executable.
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Copy start-webapp.sh from Control Node to Managed Nodes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy start-webapp.sh from Control Node to Managed Nodes</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to copy a file from the local to remote machine.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">ansible.builtin.copy</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy start-webapp.sh from Control Node to Managed Nodes
+    ansible.builtin.copy:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which file do we want to copy?</summary>
+    It's file name is `start-webapp.sh` and it's in the folder `/opt/chimera/bin/`.<br>
+    You'll need to join the folder and file name to give the full path<br>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy start-webapp.sh from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/start-webapp.sh</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: Where do we want the file to end up?</summary>
+    We want to put it in the same folder on the Managed Nodes: <b>/opt/chimera/bin/</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy start-webapp.sh from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/start-webapp.sh
+      dest: /opt/chimera/bin/</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Does the file need any special permissions?</summary>
+    Remember to make the file executable.<br>
+    The docs for this aren't very clear - a nice way of doing this is using the mode <b>'+x'</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy start-webapp.sh from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/start-webapp.sh
+      dest: /opt/chimera/bin/
+      mode: '+x'</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 6: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy start-webapp.sh from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/start-webapp.sh
+      dest: /opt/chimera/bin/
       mode: '+x'
-    become: yes
+    become: yes</pre>
+    </details>
+  </details><br>
 
-  - name: Copy webapp.service from AWS S3 bucket to systemd folder
-    amazon.aws.aws_s3:
-      mode: get
-      bucket: jwg-devops-module4   #################### CHANGE THIS (although it will work if needed) ####################
-      object: webapp.service
-      dest: /usr/lib/systemd/system/webapp.service
-      overwrite: false
-    become: yes
+</details><br>
 
-  - name: Start the systemd service
+
+**Task to add: Copy webapp.service from Control Node to Managed Nodes**  
+Here's another file to copy from the Control Node to the Managed Nodes.  
+It's file name is `webapp.service` and it's in the folder `/opt/chimera/bin/`.  
+**This time we want to put it in a different folder**  
+We want to put it in folder (`/usr/lib/systemd/system/`) on the Managed Nodes.  
+The file we're copying **is not** a program, so it doesn't need to be executable.
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Copy webapp.service from Control Node to Managed Nodes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp.service from Control Node to Managed Nodes</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to copy a file from the local to remote machine.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">ansible.builtin.copy</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp.service from Control Node to Managed Nodes
+    ansible.builtin.copy:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which file do we want to copy?</summary>
+    It's file name is `webapp.service` and it's in the folder `/opt/chimera/bin/`.<br>
+    You'll need to join the folder and file name to give the full path<br>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp.service from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp.service</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: Where do we want the file to end up?</summary>
+    We want to put it in folder <b>/usr/lib/systemd/system/</b> on the Managed Nodes.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp.service from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp.service
+      dest: /usr/lib/systemd/system/</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 5: Does the file need any special permissions?</summary>
+    The file we're copying **is not** a program, so it doesn't need to be executable.<br>
+    So, there's nothing to add here.
+  </details><br>
+
+  <details>
+    <summary>Hint 6: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Copy webapp.service from Control Node to Managed Nodes
+    ansible.builtin.copy:
+      src: /opt/chimera/bin/webapp.service
+      dest: /usr/lib/systemd/system/
+    become: yes</pre>
+    </details>
+  </details><br>
+
+</details><br>
+
+
+**Task to add: Start the webapp service**  
+The previous task copied `webapp.service` into the `/usr/lib/systemd/system/` folder.  
+This installs `webapp` as a <b>systemd service</b>.  
+We now want to start this service.  
+
+<details>
+<summary>Hints:</summary>
+
+  <details>
+    <summary>Hint 1: Give your task a name</summary>
+    The name could be <b>Start the webapp service</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Start the webapp service</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 2: Which module should you use?</summary>
+    We want to start a systemd service.<br>
+    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html">ansible.builtin.systemd</a> module.
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Start the webapp service
+    ansible.builtin.systemd:</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 3: Which service do we want to start?</summary>
+    The service name is <b>webapp.service</b> (which we can shorten to <b>webapp</b> if we like.).
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Start the webapp service
     ansible.builtin.systemd:
-      name: 'webapp.service'
+      name: webapp</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 4: What state should the service end up in?</summary>
+    We want the service to be started.<br>
+    If the service is already running, then we want to leave it running (no need to restart it)
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Start the webapp service
+    ansible.builtin.systemd:
+      name: webapp
+      state: started</pre>
+    </details>
+  </details><br>
+
+  <details>
+    <summary>Hint 6: Do we need to run this as a root user?</summary>
+    Try it out? If it fails, try adding <b>become: yes</b>
+    <details>
+    <summary>Show me the code</summary>
+    <pre>
+  - name: Start the webapp service
+    ansible.builtin.systemd:
+      name: webapp
       state: started
-    become: yes
-</pre>
-<br>
+    become: yes</pre>
+    </details>
+  </details><br>
+
+</details><br><br><br>
+
+
+**Step 9** Check the webapp is working!
+
+Once Ansible says everything has succeeded, the webapp should be working on each of your 2 new VMs.  
+Let's check this.  
+Go to `http://IP-ADDRESS-OF-YOUR-MANAGED-NODE:5000/` (try this for each of your 2 managed nodes).
+
+<br><br>
+
+
+
 
 **Optional extra**
 
-You may have noticed that, in the playbook, we:
-* copied a "webapp.service" file to a "systemd" folder
-* used the `systemd` module to start a service
-
-Take a look at the `webapp.service` file and have a read online about how systemd works.  
-`systemd` is a very powerful tool that can, amongst many other things, be used to start / stop / monitor long-running services like our web app.
-<br><br>
+You now have the **webapp* running on the 2 new VMs.  
+It would be good to also get your **cliapp** and **crontab** running on the VMs as well.  
 
 
 ### Automation Part 2
