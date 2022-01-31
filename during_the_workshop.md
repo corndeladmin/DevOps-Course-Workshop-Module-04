@@ -150,16 +150,16 @@ When you've written your script we need to automate executing it. You'll want to
 A summary of crontab and some tips:
   
 * Use `crontab -e` to edit the crontab, which is simply a file listing scheduled jobs. This will open the file in `vim`.
-* Each line is a job, given by a cron expression (specifying when it should run) and then a command to run.
-* Each user has their own crontab. It will execute as them, and in their home directory
-* An important difference between the cronjob execution and running the command yourself in bash is that the cronjob will not have run the `~/.bash_profile` file beforehand.
+* Each line is a job, consisting of a cron expression (i.e. when it should run) followed by a shell command to run.
+* Each user has their own crontab. It will execute as them, and in their home directory.
+* An important difference between the cronjob execution and running the command yourself in bash is that the cronjob will not have run the `~/.bash_profile` file beforehand, which sets up some important environment variables.
 * You can experiment with the meaning of cron expressions [here](https://crontab.guru/)
-* You might be wondering how to check the output of your cron jobs. After it runs, and you next interact with the terminal, you will see a message in the terminal saying "You have new mail". You can read the file it tells you about with `cat` or `tail`. E.g. `cat /var/spool/mail/ec2-user`.
+* You might be wondering how to check the output of your cron jobs. After it runs, and you next interact with the terminal, you will see a message in the terminal saying "You have new mail" and a filepath. You can read the file with `cat` or `tail`. E.g. `cat /var/spool/mail/ec2-user`.
 
 We've got some requirements from the CEO:
 * A dataset should be generated every five minutes, containing earthquakes in the last hour. It should be displayed on the site at `/latest`. <details><summary>Hint</summary> Use the --dataset-name option mentioned in the [cliapp_reference.md](./cliapp_reference.md) to specify a dataset name of "latest".</details>
 * The same data should also be available with a dataset name containing the date and time it was generated. <details><summary>Hint</summary>Use the `date` command. E.g. `date +"%y"` would give you the year.</details> 
-* Any datasets older than 24 hours should be automatically deleted. More recent ones should be kept accessible. <details><summary>Hint</summary>Use the `find` command on the folder containing the datasets. It has options to filter by date/time last modified, and an option to delete the files it finds.</details>
+* Any datasets older than 24 hours should be automatically deleted. More recent ones should be kept accessible. <details><summary>Hint</summary>Use the `find` command on the folder containing the datasets. It has options to filter by date/time last modified, and an option to delete the files it finds. The `DATA_FOLDER` environment variable will tell you where the datasets are stored.</details>
 <br>
 
 ## Part 2
@@ -318,7 +318,8 @@ That way, the Managed Nodes will allow the Control Node to connect.
 `ssh-copy-id ec2-user@HOSTNAME-OF-MANAGED-NODE`  
 You will be asked for the password to the Managed Node.
 
-**Step 5.** Tell Ansible which machines we want it to control.  
+**Step 5.** Tell Ansible which machines we want it to control.
+
 Ansible works against multiple Managed Nodes or “hosts” in your infrastructure at the same time, using a list known as [Inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#intro-inventory). The most common formats are INI and YAML.
 
 We will create our own inventory file.  
@@ -753,8 +754,9 @@ The file we're copying **is not** a program, so it doesn't need to be executable
 
 **Task to add: Start the webapp service**  
 The previous task copied `webapp.service` into the `/usr/lib/systemd/system/` folder.  
-This installs `webapp` as a <b>systemd service</b>.  
-We now want to start this service.  
+This installs `webapp` as a <b>systemd service</b>. We now want to start this service.  
+
+> `systemd` is a tool on most Linux distributions for managing user processes. We are using it to start the webapp more reliably than simply running the executable directly. If we needed to restart the app after a change, we would be able to do so easily with the systemd module.  
 
 <details>
 <summary>Hints:</summary>
@@ -795,8 +797,8 @@ We now want to start this service.
 
   <details>
     <summary>Hint 4: What state should the service end up in?</summary>
-    We want the service to be started.<br>
-    If the service is already running, then we want to leave it running (no need to restart it)
+    We want the service to be "started".<br>
+    If the service is already running, then we want to leave it running (no need to restart it). You could set state to "restarted" instead, if you want to ensure it is restarted after a change to the app or its configuration.
     <details>
     <summary>Show me the code</summary>
     <pre>
@@ -833,13 +835,14 @@ Try to visit the hostname (or public IP address) of your managed nodes and you s
 
 ### Ansible Part 2
 
-You now have the **webapp** running on the 2 new VMs.  
-You could try copying your cronjob onto a host as well. This isn't something you would really want to scale in the same way - you would want to run the scheduled job once and copy the datasets onto the servers.
+You now have the **webapp** running on the 2 new VMs. Try copying your cronjob onto a host as well.
+
+> This is something you might not want to scale in the same way - you could run the scheduled job once and copy the same datasets onto each server. But for simplicity, you can go ahead and add these tasks to the same play.
 
 To do this you will need to
 - Use the [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html) module to install `jq`
-- Copy the cliapp executable and the .sh script you wrote earlier
-- Use the [ansible.builtin.cron](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/cron_module.html) module to manage the crontab
+- Copy over the cliapp executable from `/opt/chimera/bin` as well as the .sh script you wrote earlier today
+- Use the [ansible.builtin.cron](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/cron_module.html) module to manage the host's crontab
 
 ### Automation Part 2
 
