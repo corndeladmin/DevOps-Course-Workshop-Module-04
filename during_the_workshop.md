@@ -164,38 +164,38 @@ We've got some requirements from the CEO:
 
 ## Part 2
 
+*If you haven't finished "Automation Part 1" yet, do so before starting the next steps*
+
 ### Scaling up
 
-Because of your great work, the Chimera website has become hugely popular - it's been featured on the TV news and you have thousands of users every day.  
+Because of your great work, the Chimera website has become hugely popular - it's been featured on the TV news and you have thousands of users every day.
 In fact, it's become so popular that it's starting to slow down due to the sheer number of users.
 
 We need to scale up!
 
-We're going to setup 2 more VMs so we can share the website traffic between them.  
+We're going to set up two more VMs so we can share the website traffic between them.  
 For this exercise, we're going to focus on setting up the new VMs. We won't deal with how to share the traffic between them.
 
-You should have been provided with a **hostname** for the two new VMs.  
-The credentials to login to these new VMs should be the same as for your first VM.
+You should have been provided with **hostnames** for the two new VMs.  
+The credentials to log in are the same as for your first VM.
 
-Now, we *could* setup these VMs by SSHing into them and running some commands.  
+Now, we *could* set up these VMs by SSHing into them and running some commands.  
 But, instead we're going to use Ansible.  
-<br>
 
-#### **Why Ansible?**
+### Why Ansible?
 
 The main reasons for using Ansible are:
-* Ansible makes it just as easy to setup 100 machines as it is to setup the first 1
-  So, when we need to scale up further, this will be simple
+* Ansible makes it just as easy to set up 100 machines as it is to setup the first 1.
+So, when we need to scale up further, this will be simple.
 
-* Ansible is **declarative** rather than **imperative**  
-  Declarative: we say *what we want the end state to be*  
-  Imperative: we say *the steps we want to take*  
-  This can make our code easier to write, and can give us a lot of reassurance.  
-  e.g. Ansible can tell us what steps it has already taken, whether steps succeeded or failed (we'll see this in practice later).
+* Ansible is **declarative** rather than **imperative**.  
+  * Declarative: we say *what we want the end state to be*  
+  * Imperative: we say *the steps we want to take*  
 
-<br>
+  This makes it easier to manage. It gives us a lot of reassurance because Ansible files describe the state of the servers and can be managed in source control, like code.
+  When it runs, Ansible can tell us what steps it has already taken, whether steps succeeded or failed (we'll see this in practice later).
 
-#### **How to Ansible**
+### How to Ansible
 
 Ansible needs two machines (either physical machines or VMs) to run:
 * **Control node**  
@@ -203,39 +203,30 @@ Ansible needs two machines (either physical machines or VMs) to run:
   **Note:** However, you cannot use a Windows machine as a control node.  
 
 * **Managed nodes**  
-  The servers you manage with Ansible. Managed nodes are also sometimes called “hosts”. Ansible is not installed on managed nodes.
+  The servers you manage with Ansible. Managed nodes are also sometimes called “hosts”. Ansible is not installed on managed nodes. They only need a way for the control node to connect (e.g. SSH). Most operations require Python but Ansible can use the "raw module" to install Python itself.
 
 We've given you 3 VMs: the 1 original VM and the 2 new VMs.  
 Control Node: Use the original VM as the Control Node.  
 Managed Nodes: Use the 2 new VMs as the Managed Nodes.
 
 If you use Mac or Linux, you can choose to use your own computer as the Control Node (you'll need to install Ansible on it first).  
-If you use Windows, you'll have to use the original VM as the Control Node, since Ansible doesn't run on Windows.
+If you use Windows, you'll have to use the original VM or your own VM as the Control Node, since Ansible doesn't run on Windows.
 
-<br>
+### **Let's get going**
 
-#### **Let's get going**
+**Step 1.** SSH into your Control Node (the original VM) if you aren't already connected.
 
-**Step 1.** SSH into your Control Node (the original VM)
+**Step 2.** Check that Ansible is installed
 
-<details>
-<summary>Hint:</summary>
-<code>ssh ec2-user@HOSTNAME-OR_IP_ADDRESS-OF-VM</code><br>
-(e.g. <code>ssh ec2-user@35.177.117.226</code> )
-</details>
-<br>
-
-**Step 2.** Check that Ansible is installed  
 Run the command `ansible --version`. If this prints out a version number + some other info, then Ansible is installed.  
 Don't worry if it says `[DEPRECATION WARNING]` etc.
 
 If Ansible isn't installed, then we can install it with `sudo pip install ansible`.  
 This might take a minute to run. It might show a warning/error message at the end.  
 Even if it does show a warning/error, run `ansible --version` to check if it succeeded.
-<br><br>
 
 **Step 3.** Test the SSH connection from the Control Node to each of the Managed Nodes.  
-You are currently SSH'd from your laptop onto the Control Node.  
+You are currently SSH'd from your own machine to the Control Node.  
 You are now going to SSH from the Control Node into each of the Managed Nodes in turn.  
 ```
                                       .--------------->  Managed
@@ -248,10 +239,7 @@ laptop      SSH tunnel       Node  .
 
 <details>
 <summary>Hint:</summary>
-SSH from your laptop onto the Control Node (if you aren't already connected)<br>
-<code>ssh ec2-user@HOSTNAME-OR-IP_ADDRESS-OF-CONTROL-NODE</code><br>
-<br>
-Then, from within that SSH session, SSH onto the Managed Node:<br>
+From your SSH session on the control node, SSH onto the Managed Node:<br>
 <code>ssh ec2-user@HOSTNAME-OR-IP-ADDRESS-OF-MANAGED-NODE</code><br>
 It should ask you for a password (it's the same as the password to the first VM)<br>
 <br>
@@ -264,30 +252,20 @@ To exit each SSH session, run:<br>
 <details>
 <summary>Here's what I saw as I typed in and ran the commands:</summary>
 
-<pre>
-JamGri@manatee MINGW32 /
-$ 
-</pre>
-
+Connecting to the original VM (no password required because of the ssh key setup at the start of the workshop)
 <pre>
 $ ssh ec2-user@35.177.117.226
-ec2-user@35.177.117.226's password:
-</pre>
-
-<pre>
-ec2-user@35.177.117.226's password: ***********
-Last login: Thu Jan 20 16:33:50 2022 from cpc73840-dals21-2-0-cust250.20-2.cable.virginm.net
+Last login: Wed Jan 19 15:14:28 2022 from 146.66.43.187
 
        __|  __|_  )
        _|  (     /   Amazon Linux 2 AMI
       ___|\___|___|
 
 https://aws.amazon.com/amazon-linux-2/
-56 package(s) needed for security, out of 110 available
-Run "sudo yum update" to apply all updates.
 [ec2-user@ip-172-31-31-253 ~]$
 </pre>
 
+From there, connect to a managed node:
 <pre>
 [ec2-user@ip-172-31-31-253 ~]$ ssh ec2-user@3.10.179.156
 ec2-user@3.10.179.156's password:
@@ -307,6 +285,7 @@ Run "sudo yum update" to apply all updates.
 [ec2-user@ip-172-31-24-197 ~]$
 </pre>
 
+Exit from the host node
 <pre>
 [ec2-user@ip-172-31-24-197 ~]$ exit
 logout
@@ -314,6 +293,7 @@ Connection to 3.10.179.156 closed.
 [ec2-user@ip-172-31-31-253 ~]$
 </pre>
 
+And then exit from the control node, back to your own machine:
 <pre>
 [ec2-user@ip-172-31-31-253 ~]$ exit
 logout
@@ -323,34 +303,26 @@ JamGri@manatee MINGW32 /
 $
 </pre>
 </details>
-<br><br>
+<br>
 
-**Step 4.** Create an SSH key and add it to the Managed Nodes.  
+**Step 4.** Create an SSH key and add it to the Managed Nodes.
+
 All this typing in of passwords is a bit boring, isn't it!  
-Let's save ourselves some hassle by creating an SSH key instead.
+Let's save ourselves some hassle by creating an SSH key instead. This is the same as what we did at the start of the workshop but this time we'll create the key on the Control Node and copy the public part onto the two Managed Nodes. 
 
-An SSH key has two parts (public and private).  
-We'll keep the private part on the Control Node and copy the public part onto the two Managed Nodes.  
-That way, the Managed Nodes will know who we are when we ask to login.  
+That way, the Managed Nodes will allow the Control Node to connect.
 
-SSH from your laptop onto the Control Node (if you aren't already connected)  
-`ssh ec2-user@HOSTNAME-OF-CONTROL-NODE`  
-We will continue to use a password for this connection.
-
-Create an SSH key.  
-`ssh-keygen` (accept the default options)
-
-Copy the SSH key onto the Managed Nodes (you'll have to run this command twice, once for each node).  
+- SSH from your laptop onto the Control Node (if you aren't already connected).
+- Create an SSH key with `ssh-keygen` (accept the default options)
+- Copy the SSH key onto the Managed Nodes, but rather than doing it manually, use the `ssh-copy-id` command this time. Run this command twice, once for each node:  
 `ssh-copy-id ec2-user@HOSTNAME-OF-MANAGED-NODE`  
 You will be asked for the password to the Managed Node.
-<br><br>
-
 
 **Step 5.** Tell Ansible which machines we want it to control.  
-Ansible works against multiple Managed Nodes or “hosts” in your infrastructure at the same time, using a list known as [Inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#intro-inventory).
+Ansible works against multiple Managed Nodes or “hosts” in your infrastructure at the same time, using a list known as [Inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#intro-inventory). The most common formats are INI and YAML.
 
 We will create our own inventory file.  
-Here's an example:  
+Here's an example INI format inventory:  
 ```
 [my-group-name]
 host-name-of-server-1.example.com
@@ -363,66 +335,50 @@ Within each group, you add lines, each with a hostname or IP address.
 
 Have a go creating your own inventory file - perhaps save it in your home directory and name it `my-ansible-inventory`
 
-<details>
-<summary>Hint:</summary>
-SSH from your laptop onto the Control Node (if you aren't already connected):<br>
-<code>ssh ec2-user@HOSTNAME-OF-CONTROL-NODE</code><br><br>
+<details markdown="1">
+<summary markdown="1">Hint:</summary>
+SSH from your laptop onto the Control Node (if you aren't already connected).
 
-Check we're in the home directory: <code>pwd</code><br>
-This should print <code>/home/ec2-user</code><br>
+Check you're in the home directory with the command `pwd`. This stands for "print working directory" and should print `/home/ec2-user`. If not, you can change to your home directory with `cd ~` and then run `pwd` again to check.
 
-Create the inventory file: <code>touch my-ansible-inventory</code><br>
+Create the inventory file with vim or nano: <code>vim my-ansible-inventory</code><br>
 
-Edit the inventory file: <code>nano my-ansible-inventory</code><br>
+Add the inventory details:
+- Create a group called "webservers"
+- Add the two hostnames (or IP addresses) of your new VMs
 
-Add the inventory details<br>
-\- Let's crerate a group - perhaps call it "webservers"<br>
-\- Add the hostnames or IP addresses of your VMs<br>
-(remember to use the actual IP addresses of your VMs if you're copying the example below!)<br>
-<code>
-[webservers]<br>
-1.2.3.4<br>
+```ini
+[webservers]
+1.2.3.4
 5.6.7.8
-</code><br>
+```
 </details>
 <br>
 
 **Step 6.** Give Ansible our instructions
-We give Ansible instructions do by creating a [Playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#about-playbooks).  
+
+We give Ansible instructions by creating a [Playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#about-playbooks).  
 If you need to execute a task with Ansible more than once, write a playbook and put it under source control. Then you can use the playbook to push out new configuration or confirm the configuration of remote systems.
 
-First, create the playbook, let's call it `my-ansible-playbook.yaml`
+First, create the playbook, let's call it `my-ansible-playbook.yml`
 
 <details>
 <summary>Hint:</summary>
-SSH from your laptop onto the Control Node (if you aren't already connected):<br>
-<code>ssh ec2-user@HOSTNAME-OF-CONTROL-NODE</code><br><br>
 
-Check we're in the home directory: <code>pwd</code><br>
-This should print <code>/home/ec2-user</code><br>
-
-Create the playbook file: <code>touch my-ansible-playbook.yaml</code><br>
-
-For the following sections, you can edit the playbook file using: <code>nano my-ansible-playbook.yaml</code><br>
+Create the file in the home directory of your Control Node, next to your inventory file. Again, use vim or nano, e.g. <code>vim my-ansible-playbook.yml</code>
 </details>
-<br>
 
-
-Playbooks are expressed in YAML format.  
-YAML files always start with 3 hyphens:  
-```
----
-```
+Playbooks are expressed in [YAML format](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html#yaml-syntax).  
 
 A playbook is composed of one or more ‘plays’ in an ordered list.  
-We will just have one ‘play’ in ours.  
+You will need just one ‘play’ in your playbook today.  
 In each play, we specify:
-- the name of the play
-- the group of hosts to run the play on (using the group name from the Inventory)
-- the user that Ansible should use to connect to the hosts (Ansible connects to the hosts using SSH)
+- the **name** of the play
+- the group of **hosts** to run the play on (using the group name from the Inventory)
+- the **remote_user** that Ansible should use to connect to the hosts (Ansible connects to the hosts using SSH)
 
+For example:
 ```
----
 - name: Install Chimera on new web servers
   hosts: webservers
   remote_user: ec2-user
@@ -430,11 +386,10 @@ In each play, we specify:
 
 Each play runs one or more tasks. Each task calls an Ansible module.  
 We will have several tasks in our playbook.  
-A playbook runs in order from top to bottom. Within each play, tasks also run in order from top to bottom.
+A playbook runs plays in order from top to bottom. Within each play, tasks also run in order from top to bottom.
 
 Let's create our first task, then inspect what it's doing:
 ```
----
 - name: Install Chimera on new web servers
   hosts: webservers
   remote_user: ec2-user
@@ -447,34 +402,33 @@ Let's create our first task, then inspect what it's doing:
       mode: '777'
     become: yes
 ```
-Each task name a name (e.g. "Create log folder").  
-The task then has a Module (e.g. "ansible.builtin.file").  
+Each task has a name (e.g. "Create log folder").  
+The task then picks a Module (e.g. "ansible.builtin.file") and uses that as a key.
 
-There are a huge number of Ansible Modules, grouped into Collections.  
-Here is the list of all [Ansible Collections](https://docs.ansible.com/ansible/latest/collections/index.html).  
-And here is the list of [Modules within the "ansible.builtin" collection](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html#modules).
+> There are a huge number of Ansible Modules, grouped into Collections.  
+> Here is the list of all [Ansible Collections](https://docs.ansible.com/ansible/latest/collections/index.html).  
+> And here is the list of [Modules within the "ansible.builtin" collection](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html#modules).
+> 
+> In this case, we are using the [ansible.builtin.file](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html) module,
+which can manage files, folders and file properties.
 
-In this case, we are using the [ansible.builtin.file](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html) module,
-which we can use to manage files, folders and file properties.
-
-Each Module performs a specific task and take a different set of parameters.  
-You can check on the ansible website to find out which paramters to use.
+Each Module performs a specific task and takes a different set of parameters.  
+You can check on the Ansible website to find out which parameters to use.
 
 In this case:
 * `path: /var/log/chimera` means... act on the file or folder `/var/log/chimera`
 * `state: directory` means... make this path be a directory
-* `mode: '777'` means... give full permissions to this directory
+* `mode: '777'` means... give everyone full permissions to this directory
 
 `become: yes` is an option on all Modules.  
-It tells Ansible to run the Module as the root user (e.g. the same as putting `sudo` before a shell command).  
-There's [more details about become on the Ansible website](https://docs.ansible.com/ansible/latest/user_guide/become.html).
-<br><br>
-
+It tells Ansible to run the Module as the root user (like putting `sudo` before a shell command). 
+[See the Ansible website for more details about "become"](https://docs.ansible.com/ansible/latest/user_guide/become.html).
+<br>
 
 **Step 7.** Time to run the playbook for the first time
 
 Run your ansible playbook using this command:  
-`ansible-playbook my-ansible-playbook.yaml -i my-ansible-inventory`
+`ansible-playbook my-ansible-playbook.yml -i my-ansible-inventory`
 
 The output should look a bit like this:  
 <pre>
@@ -487,15 +441,19 @@ ok: [35.178.196.136]
 TASK [Create log folder] ********************
 changed: [35.178.196.136]
 changed: [3.10.179.156]
+
+PLAY RECAP *********************
+35.178.196.136 : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+3.10.179.156 : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 </pre>
 
-Notice that, within the "Create log folder" task, is says `changed` for both nodes.  
+Notice that, within the "Create log folder" task, it says `changed` for both nodes.  
 This is how we can tell that Ansible has made a change.
 
 Now run the playbook again...  
-`ansible-playbook my-ansible-playbook.yaml -i my-ansible-inventory`
+`ansible-playbook my-ansible-playbook.yml -i my-ansible-inventory`
 
-The output should look different:  
+Now, for the "Create log folder" task, it says `ok` instead of `changed`:
 <pre>
 PLAY [Install Chimera on new web servers] ********************
 
@@ -508,15 +466,14 @@ ok: [35.178.196.136]
 ok: [3.10.179.156]
 </pre>
 
-Now, for the "Create log folder" task, it says `ok` instead of `changed`.  
 But why?  
 Simply because the folder already exists (Ansible created it the first time you ran the playbook).
 
 So, Ansible checks the state of the folder before trying to create it.  
-If the folder already exists, and has the correct permissions, it won't make any changes.  
-Isn't that reassuring :-)  
+If the folder already exists, and has the correct permissions, it won't make any changes.
+Isn't that reassuring? 😊
+
 You can run the playbook just to check that everything is in the correct state, safe in the knowledge that it won't change anything that doesn't need changing.
-<br><br>
 
 
 **Step 8.** Write the rest of the playbook
@@ -529,94 +486,18 @@ For each task, you'll need to:
 * Work out which options you need for the module  
   You can look this up on the Ansible docs
 * Work out whether you need to run the module as root user (`become: yes`)  
-  Hint: you can just try this out - it will fail and tell you if it doesn't have permissions to permform the task
+  Hint: you can just try without first - it will fail and tell you if it doesn't have permission to perform the task
 
 For reference, here's the Ansible Modules that we'll be using:
 * [ansible.builtin.copy](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html)
 * [ansible.builtin.file](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html)
-* [ansible.builtin.pip](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/pip_module.html)
 * [ansible.builtin.systemd](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html)
-* [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html)
 
 Write your playbook one task at a time.  
-**After each new task, run the playbook** so you can check if it works and you vcan see Ansible making the changes.  
-Notice how each task moves shows `changed` the first time and `ok` subsequently.
+**After each new task, run the playbook** so you can check if it works and you can see Ansible making the changes.  
+Notice how each task shows `changed` the first time and `ok` subsequently.
 
 Here's the list of tasks you'll need to add:
-
-**Task to add: Install jq (command-line JSON processor)**  
-You can use the Yum package manager to install jq.  
-We want to make sure jq is installed, but we don't always need to keep it up to date.  
-
-<details>
-<summary>Hints:</summary>
-
-  <details>
-    <summary>Hint 1: Give your task a name</summary>
-    The name could be <b>Install jq (command-line JSON processor)</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-      - name: Install jq (command-line JSON processor)</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 2: Which module should you use?</summary>
-    We want to use the Yum package manager to install jq.<br>
-    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html">ansible.builtin.yum</a> module.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install jq (command-line JSON processor)
-    ansible.builtin.yum:</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 3: Which package do we want to install?</summary>
-    The name of the package we want to install is **jq**<br>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install jq (command-line JSON processor)
-    ansible.builtin.yum:
-      name: jq</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 4: What state do we want the package to be in?</summary>
-    We want to make sure jq is installed, but we don't always need to keep it up to date.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install jq (command-line JSON processor)
-    ansible.builtin.yum:
-      name: jq
-      state: present</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 5: Do we need to run this as a root user?</summary>
-    Try it out? If it fails, try adding the syntax that tells Ansible to run this as a root user (<b>become: yes</b>).<br>
-    Note: The <b>become: yes</b> configuration is part of the <b>Task</b> configuration, not part of the <b>Module</b> configuration.<br>
-    How far tabbed in do you think it should be?
-    <details>
-    <summary>Show me the code</summary>
-    Note: <b>become: yes</b> is at the same level as "name: Install jq" and "ansibile.builtin.yum:" (not the same level as "name: jq" and "state: present")<br>
-    <pre>
-  - name: Install jq (command-line JSON processor)
-    ansible.builtin.yum:
-      name: jq
-      state: present
-    become: yes</pre>
-    </details>
-  </details><br>
-
-</details><br>
-
 
 **Task to add: Create folder for the Chimera webapp binary**  
 We want to create the folder `/opt/chimera/bin`  
@@ -686,150 +567,6 @@ We want to create the folder `/opt/chimera/bin`
   </details><br>
 
 </details><br>
-
-
-**Task to add: Install pip (python package manager)**  
-You can use the Yum package manager to install pip.  
-We want to make sure pip is installed, but we don't always need to keep it up to date.  
-
-<details>
-<summary>Hints:</summary>
-
-  <details>
-    <summary>Hint 1: Give your task a name</summary>
-    The name could be <b>Install pip (python package manager)</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install pip (python package manager)</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 2: Which module should you use?</summary>
-    We want to use the Yum package manager to install pip.<br>
-    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html">ansible.builtin.yum</a> module.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install pip (python package manager)
-    ansible.builtin.yum:</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 3: Which package do we want to install?</summary>
-    The name of the package we want to install is **pip**<br>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install pip (python package manager)
-    ansible.builtin.yum:
-      name: pip</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 4: What state do we want the package to be in?</summary>
-    We want to make sure pip is installed, but we don't always need to keep it up to date.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install pip (python package manager)
-    ansible.builtin.yum:
-      name: pip
-      state: present</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 5: Do we need to run this as a root user?</summary>
-    Try it out? If it fails, try adding <b>become: yes</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install pip (python package manager)
-    ansible.builtin.yum:
-      name: pip
-      state: present
-    become: yes</pre>
-    </details>
-  </details><br>
-
-</details><br>
-
-
-**Task to add: Install a python library (boto3) that we will need later**  
-You can use the pip package manager to install the library.  
-The library that we need is called **boto3**.  
-We want to make sure boto3 is installed, but we don't always need to keep it up to date.  
-
-<details>
-<summary>Hints:</summary>
-
-  <details>
-    <summary>Hint 1: Give your task a name</summary>
-    The name could be <b>Install a python library (boto3) that we will need later</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install a python library (boto3) that we will need later</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 2: Which module should you use?</summary>
-    We want to use the pip package manager to install boto3.<br>
-    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/pip_module.html">ansible.builtin.pip</a> module.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install a python library (boto3) that we will need later
-    ansible.builtin.pip:</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 3: Which package do we want to install?</summary>
-    The name of the package we want to install is **boto3**<br>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install a python library (boto3) that we will need later
-    ansible.builtin.pip:
-      name: boto3</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 4: What state do we want the package to be in?</summary>
-    We want to make sure boto3 is installed, but we don't always need to keep it up to date.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install a python library (boto3) that we will need later
-    ansible.builtin.pip:
-      name: boto3
-      state: present</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 5: Do we need to run this as a root user?</summary>
-    Try it out? If it fails, try adding <b>become: yes</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Install a python library (boto3) that we will need later
-    ansible.builtin.pip:
-      name: boto3
-      state: present
-    become: yes</pre>
-    </details>
-  </details><br>
-
-</details><br>
-
 
 **Task to add: Copy webapp program from Control Node to Managed Nodes**  
 The Control Node (the VM that you're running Ansible on) has the webapp program running on it.  
@@ -930,85 +667,7 @@ The file we're copying is a program, so make sure it is executable.
 
 <details>
 <summary>Hints:</summary>
-
-  <details>
-    <summary>Hint 1: Give your task a name</summary>
-    The name could be <b>Copy start-webapp.sh from Control Node to Managed Nodes</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Copy start-webapp.sh from Control Node to Managed Nodes</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 2: Which module should you use?</summary>
-    We want to copy a file from the local to remote machine.<br>
-    So, we should use the <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">ansible.builtin.copy</a> module.
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Copy start-webapp.sh from Control Node to Managed Nodes
-    ansible.builtin.copy:</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 3: Which file do we want to copy?</summary>
-    It's file name is `start-webapp.sh` and it's in the folder `/opt/chimera/bin/`.<br>
-    You'll need to join the folder and file name to give the full path<br>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Copy start-webapp.sh from Control Node to Managed Nodes
-    ansible.builtin.copy:
-      src: /opt/chimera/bin/start-webapp.sh</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 4: Where do we want the file to end up?</summary>
-    We want to put it in the same folder on the Managed Nodes: <b>/opt/chimera/bin/</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Copy start-webapp.sh from Control Node to Managed Nodes
-    ansible.builtin.copy:
-      src: /opt/chimera/bin/start-webapp.sh
-      dest: /opt/chimera/bin/</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 5: Does the file need any special permissions?</summary>
-    Remember to make the file executable.<br>
-    The docs for this aren't very clear - a nice way of doing this is using the mode <b>'+x'</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Copy start-webapp.sh from Control Node to Managed Nodes
-    ansible.builtin.copy:
-      src: /opt/chimera/bin/start-webapp.sh
-      dest: /opt/chimera/bin/
-      mode: '+x'</pre>
-    </details>
-  </details><br>
-
-  <details>
-    <summary>Hint 6: Do we need to run this as a root user?</summary>
-    Try it out? If it fails, try adding <b>become: yes</b>
-    <details>
-    <summary>Show me the code</summary>
-    <pre>
-  - name: Copy start-webapp.sh from Control Node to Managed Nodes
-    ansible.builtin.copy:
-      src: /opt/chimera/bin/start-webapp.sh
-      dest: /opt/chimera/bin/
-      mode: '+x'
-    become: yes</pre>
-    </details>
-  </details><br>
-
+This task will look a lot like the previous one. You just need a different "name" for the task and the correct "src" filename 
 </details><br>
 
 
@@ -1092,7 +751,6 @@ The file we're copying **is not** a program, so it doesn't need to be executable
 
 </details><br>
 
-
 **Task to add: Start the webapp service**  
 The previous task copied `webapp.service` into the `/usr/lib/systemd/system/` folder.  
 This installs `webapp` as a <b>systemd service</b>.  
@@ -1163,28 +821,27 @@ We now want to start this service.
     </details>
   </details><br>
 
-</details><br><br><br>
+</details><br>
 
 
 **Step 9** Check the webapp is working!
 
-Once Ansible says everything has succeeded, the webapp should be working on each of your 2 new VMs.  
-Let's check this.  
-Go to `http://IP-ADDRESS-OF-YOUR-MANAGED-NODE:5000/` (try this for each of your 2 managed nodes).
+Once Ansible says everything has succeeded, the webapp should be working on each of your 2 new VMs. Let's check this.  
+Try to visit the hostname (or public IP address) of your managed nodes and you should hopefully see the earthquake map (try this for each of your 2 managed nodes).
 
-<br><br>
+## Stretch Goals
 
+### Ansible Part 2
 
+You now have the **webapp** running on the 2 new VMs.  
+You could try copying your cronjob onto a host as well. This isn't something you would really want to scale in the same way - you would want to run the scheduled job once and copy the datasets onto the servers.
 
-
-**Optional extra**
-
-You now have the **webapp* running on the 2 new VMs.  
-It would be good to also get your **cliapp** and **crontab** running on the VMs as well.  
-
+To do this you will need to
+- Use the [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html) module to install `jq`
+- Copy the cliapp executable and the .sh script you wrote earlier
+- Use the [ansible.builtin.cron](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/cron_module.html) module to manage the crontab
 
 ### Automation Part 2
-*If you haven't finished "Automation Part 1" yet, do so before starting the next steps*
 
 The CEO has come back with some more requirements for you.
 
@@ -1195,13 +852,13 @@ The CEO has come back with some more requirements for you.
 * The USGS has more than just the hourly data feed.
 * You might want to add some parameters to your script, if you haven't already.
 
-### (Stretch goal) Document `cliapp`
+### Document `cliapp`
 
 If you run `cliapp --help` you'll see lots of different options that can be passed to the program. We've documented some of these in [cliapp_reference.md](./cliapp_reference.md) but some are a complete mystery.
 
 Can you work out what they do and complete the documentation?
 
-### (Stretch goal) Create an API
+### Create an API
 
 While command line programs are very useful in certain circumstances they do have their limitations. We would like to create an API that makes the data produced by `cliapp` available as JSON, rather than through the rather clunky `webapp`.
 
