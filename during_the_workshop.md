@@ -162,6 +162,8 @@ We've got some requirements from the CEO:
 * Any datasets older than 24 hours should be automatically deleted. More recent ones should be kept accessible. <details><summary>Hint</summary>Use the `find` command on the folder containing the datasets. It has options to filter by date/time last modified, and an option to delete the files it finds. The `DATA_FOLDER` environment variable will tell you where the datasets are stored.</details>
 <br>
 
+When you think your cronjob is working, check! Either look at the "dataset generated" timestamp on the website, or check the logs in `/var/spool/mail/ec2-user`.
+
 ## Part 2
 
 *If you haven't finished "Automation Part 1" yet, do so before starting the next steps*
