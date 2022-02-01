@@ -865,9 +865,12 @@ Can you work out what they do and complete the documentation?
 
 While command line programs are very useful in certain circumstances they do have their limitations. We would like to create an API that makes the data produced by `cliapp` available as JSON, rather than through the rather clunky `webapp`.
 
-Use your existing knowledge of Flask (and documentation from the internet) to create an API on your local Vagrant box. Your initial goal should be to create an endpoint to `GET` a dataset based on its name:
+Use your existing knowledge of Flask (and documentation from the internet) to create an API to run alongside the webapp. You can work on it locally to start with (remembering any extra requirements e.g. to set a DATA_FOLDER environment variable). Your initial goal should be to create an endpoint to `GET` a dataset based on its name:
 ```
 // e.g. GET the dataset called `edge-throw-except`
 GET http://localhost/dataset/edge-throw-except
 ```
+
+To deploy it to the Ansible hosts, you could publish your app to a public repository and then get Ansible to pull it onto the hosts, install dependencies and start up the app.
+
 Once you have this working consider other improvements. A `GET` endpoint to list all the currently available datasets? A `POST` endpoint that accepts input data and options and invokes `cliapp` with them? There are lots of possibilities.
