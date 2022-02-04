@@ -374,7 +374,7 @@ Create the file in the home directory of your Control Node, next to your invento
 Playbooks are expressed in [YAML format](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html#yaml-syntax).  
 
 A playbook is composed of one or more ‘plays’ in an ordered list.  
-You will need just one ‘play’ in your playbook today.  
+For now you just need one playbook, containing one ‘play’. 
 In each play, we specify:
 - the **name** of the play
 - the group of **hosts** to run the play on (using the group name from the Inventory)
@@ -835,16 +835,45 @@ Try to visit the hostname (or public IP address) of your managed nodes and you s
 
 ## Stretch Goals
 
+You've done the core part of the exercise so feel free to pick and choose stretch goals that interest you more.
+
 ### Ansible Part 2
 
-You now have the **webapp** running on the 2 new VMs. Try copying your cronjob onto a host as well.
+You now have the **webapp** running on the 2 new VMs but not with any real data. Let's fix that, but note the cronjob to generate datasets is **not** something we want to scale in the same way: we want the same datasets available on all of the replica webservers. So the data processing job should only run once. Then after it generates datasets, Ansible can synchronise the data folder from that machine with any other webservers.
 
-> This is something you might not want to scale in the same way - you could run the scheduled job once and copy the same datasets onto each server. But for simplicity, you can go ahead and add these tasks to the same play.
+**Update your playbook:**
+- Add a new task to create a folder at `/opt/chimera/data` on each host (to store datasets). You can create it similarly to the log folder.
+- Run your updated playbook.
 
-To do this you will need to
-- Use the [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html) module to install `jq`
-- Copy over the cliapp executable from `/opt/chimera/bin` as well as the .sh script you wrote earlier today
-- Use the [ansible.builtin.cron](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/cron_module.html) module to manage the host's crontab
+**Write a new playbook**
+
+This will be for generating and sharing datasets, so call it something like "datasets-playbook.yml".
+
+In the new playbook, add a play that runs on just **one** server. It should do the following:
+- Copy two files from the control node onto the target server: the cliapp executable and the script you wrote earlier today.
+- Use the [ansible.builtin.yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html) module to install `jq`.
+- Run your shell script for generating the "latest" dataset. Note that you may need to set DATA_FOLDER and PATH variables for your script to work.
+- Use the [ansible.posix.synchronize](https://docs.ansible.com/ansible/latest/collections/ansible/posix/synchronize_module.html) module to copy the data from the host onto the control node. Alternatively, you could try running an rsync command directly with the "ansible.builtin.command" module.
+
+Add a second play to that playbook. It should run on all webservers and just needs one task - copy the up to date datasets folder from the control node onto each host.
+
+**Test it out**
+
+Running this playbook should generate a "latest" dataset and synchronise the same data folder across all hosts. Try it out with an `ansible-playbook` command! Check it works by opening up "/latest" in your browser using the hosts' addresses. 
+
+> If your shell script also deletes old datasets, you will want the "delete" option of syncrhonize/rsync to make sure that they get deleted on the control node/other hosts.
+
+**Run it on a schedule**
+
+To run this playbook on a schedule, you could manually modify your existing crontab, but let's keep going with Ansible. Use the [ansible.builtin.cron](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/cron_module.html) module to manage a cronjob.
+
+<details markdown="1"><summary>Hint</summary>
+
+Add a second play to your original playbook. It should target the control node itself and just needs one task, using that "cron" module to manage a cronjob. The cronjob should run your new "datasets-playbook.yml" playbook via Ansible. You should manually remove any existing cronjobs on your control node.
+
+> Yes, your control node can manage itself! You can do this by specifying `hosts: localhost` when writing a play.
+
+</details>
 
 ### Automation Part 2
 
