@@ -250,63 +250,6 @@ To exit each SSH session, run:<br>
 </details>
 <br>
 
-
-<details>
-<summary>Here's what I saw as I typed in and ran the commands:</summary>
-
-Connecting to the original VM (no password required because of the ssh key setup at the start of the workshop)
-<pre>
-$ ssh ec2-user@35.177.117.226
-Last login: Wed Jan 19 15:14:28 2022 from 146.66.43.187
-
-       __|  __|_  )
-       _|  (     /   Amazon Linux 2 AMI
-      ___|\___|___|
-
-https://aws.amazon.com/amazon-linux-2/
-[ec2-user@ip-172-31-31-253 ~]$
-</pre>
-
-From there, connect to a managed node:
-<pre>
-[ec2-user@ip-172-31-31-253 ~]$ ssh ec2-user@3.10.179.156
-ec2-user@3.10.179.156's password:
-</pre>
-
-<pre>
-ec2-user@3.10.179.156's password: ***********
-Last login: Wed Jan 19 15:15:38 2022 from 35.177.117.226
-
-       __|  __|_  )
-       _|  (     /   Amazon Linux 2 AMI
-      ___|\___|___|
-
-https://aws.amazon.com/amazon-linux-2/
-56 package(s) needed for security, out of 110 available
-Run "sudo yum update" to apply all updates.
-[ec2-user@ip-172-31-24-197 ~]$
-</pre>
-
-Exit from the host node
-<pre>
-[ec2-user@ip-172-31-24-197 ~]$ exit
-logout
-Connection to 3.10.179.156 closed.
-[ec2-user@ip-172-31-31-253 ~]$
-</pre>
-
-And then exit from the control node, back to your own machine:
-<pre>
-[ec2-user@ip-172-31-31-253 ~]$ exit
-logout
-Connection to 35.177.117.226 closed.
-
-JamGri@manatee MINGW32 /
-$
-</pre>
-</details>
-<br>
-
 **Step 4.** Create an SSH key and add it to the Managed Nodes.
 
 All this typing in of passwords is a bit boring, isn't it!  
