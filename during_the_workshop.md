@@ -270,7 +270,7 @@ Ansible works against multiple Managed Nodes or “hosts” in your infrastructu
 We will create our own inventory file.  
 Here's an example INI format inventory:  
 ```
-[my-group-name]
+[my_group_name]
 host-name-of-server-1.example.com
 host-name-of-server-2.example.com
 3.10.179.156
