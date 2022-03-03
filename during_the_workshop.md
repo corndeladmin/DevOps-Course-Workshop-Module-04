@@ -445,7 +445,7 @@ Notice how each task shows `changed` the first time and `ok` subsequently.
 
 Here's the list of tasks you'll need to add:
 
-**Task to add: Create folder for the Chimera webapp binary**  
+**Task a: Create folder for the Chimera webapp binary**  
 We want to create the folder `/opt/chimera/bin`  
 
 <details>
@@ -514,7 +514,7 @@ We want to create the folder `/opt/chimera/bin`
 
 </details><br>
 
-**Task to add: Copy webapp program from Control Node to Managed Nodes**  
+**Task b: Copy webapp program from Control Node to Managed Nodes**  
 The Control Node (the VM that you're running Ansible on) has the webapp program running on it.  
 It's file name is `webapp` and it's in the folder `/opt/chimera/bin/`.  
 We want to copy this file to the Managed Nodes.  
@@ -605,7 +605,7 @@ The file we're copying is a program, so make sure it is executable.
 </details><br>
 
 
-**Task to add: Copy start-webapp.sh from Control Node to Managed Nodes**  
+**Task c: Copy start-webapp.sh from Control Node to Managed Nodes**  
 Here's another file to copy from the Control Node to the Managed Nodes.  
 It's file name is `start-webapp.sh` and it's in the folder `/opt/chimera/bin/`.  
 We want to put it in the same folder on the Managed Nodes (`/opt/chimera/bin/`).  
@@ -617,7 +617,7 @@ This task will look a lot like the previous one. You just need a different "name
 </details><br>
 
 
-**Task to add: Copy webapp.service from Control Node to Managed Nodes**  
+**Task d: Copy webapp.service from Control Node to Managed Nodes**  
 Here's another file to copy from the Control Node to the Managed Nodes.  
 It's file name is `webapp.service` and it's in the folder `/opt/chimera/bin/`.  
 **This time we want to put it in a different folder**  
@@ -697,7 +697,7 @@ The file we're copying **is not** a program, so it doesn't need to be executable
 
 </details><br>
 
-**Task to add: Start the webapp service**  
+**Task e: Start the webapp service**  
 The previous task copied `webapp.service` into the `/usr/lib/systemd/system/` folder.  
 This installs `webapp` as a <b>systemd service</b>. We now want to start this service.  
 
