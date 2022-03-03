@@ -617,7 +617,7 @@ This task will look a lot like the previous one. You just need a different "name
 </details><br>
 
 
-**Task to d: Copy webapp.service from Control Node to Managed Nodes**  
+**Task d: Copy webapp.service from Control Node to Managed Nodes**  
 Here's another file to copy from the Control Node to the Managed Nodes.  
 It's file name is `webapp.service` and it's in the folder `/opt/chimera/bin/`.  
 **This time we want to put it in a different folder**  
