@@ -155,6 +155,36 @@ A summary of crontab and some tips:
 * An important difference between the cronjob execution and running the command yourself in bash is that the cronjob will not have run the `~/.bash_profile` file beforehand, which sets up some important environment variables.
 * You can experiment with the meaning of cron expressions [here](https://crontab.guru/)
 * You might be wondering how to check the output of your cron jobs. After it runs, and you next interact with the terminal, you will see a message in the terminal saying "You have new mail" and a filepath. You can read the file with `cat` or `tail`. E.g. `cat /var/spool/mail/ec2-user`.
+<details><summary><b>Troubleshooting Hints for Crontab</b></summary>
+
+If you're not seeing your cronjob succeeding, do you know if it's running at all?
+
+<details><summary>How can we tell if the job is being attempted?</summary>
+
+There are a few things we could try:
+* Keep an eye out for messages stating you have mail - if you do then take a look to see if it has any hints on what's happening!
+* Check any outputs that your script has - are they updating? For example, you can see the modified time of files using `ls -l`
+* If you're not seeing either of the above, check that your cron expression is described by [crontab guru](https://crontab.guru/) as what you'd expect
+</details>
+
+<details><summary>How can I output the logs to my own log file?</summary>
+
+Good question, let's [ask the internet!](https://stackoverflow.com/questions/4811738/how-to-log-cron-jobs)
+
+</details>
+
+<details><summary>The job is running but it fails</summary>
+
+First of all, double check that the script runs successfully when you run it directly. If it doesn't, start by fixing it up.
+
+If it's running directly but not through cron, check the error messages that you receive. Clearly we have some differences in how cron is running the job; we may need to provide some extra specifics within our script to help cron know how to run the job.
+
+In particular, the following may be of assistance:
+* The `whereis` command can help you find the absolute path for commands
+* You can set environment variables within a script using `export VAR="value"`
+
+</details>
+</details>
 
 We've got some requirements from the CEO:
 * A dataset should be generated every five minutes, containing earthquakes in the last hour. It should be displayed on the site at `/latest`. <details><summary>Hint</summary> Use the --dataset-name option mentioned in the [cliapp_reference.md](./cliapp_reference.md) to specify a dataset name of "latest".</details>
