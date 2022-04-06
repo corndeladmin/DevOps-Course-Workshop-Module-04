@@ -155,7 +155,7 @@ A summary of crontab and some tips:
 * An important difference between the cronjob execution and running the command yourself in bash is that the cronjob will not have run the `~/.bash_profile` file beforehand, which sets up some important environment variables.
 * You can experiment with the meaning of cron expressions [here](https://crontab.guru/)
 * You might be wondering how to check the output of your cron jobs. After it runs, and you next interact with the terminal, you will see a message in the terminal saying "You have new mail" and a filepath. You can read the file with `cat` or `tail`. E.g. `cat /var/spool/mail/ec2-user`.
-<details><summary>Hints</summary>
+<details><summary><b>Troubleshooting Hints for Crontab</b></summary>
 
 If you're not seeing your cronjob succeeding, do you know if it's running at all?
 
@@ -177,7 +177,7 @@ Good question, let's [ask the internet!](https://stackoverflow.com/questions/481
 
 First of all, double check that the script runs successfully when you run it directly. If it doesn't, start by fixing it up.
 
-If it's running directly but not through cron, check the error messages that you receive. Clearly we have some differences in how cron is running the job compared to you; we may need to provide some extra specifics within our script to help cron know how to run the job.
+If it's running directly but not through cron, check the error messages that you receive. Clearly we have some differences in how cron is running the job; we may need to provide some extra specifics within our script to help cron know how to run the job.
 
 In particular, the following may be of assistance:
 * The `whereis` command can help you find the absolute path for commands
