@@ -62,10 +62,12 @@ cliapp -i some_file_name
 
 The result should be very similar to running the program without any arguments. This isn't surprising as our input file is currently blank.
 
-Open your input file using `vim` and add the following line. Then run `cliapp -i some_file_name` again. What happens?
+Open your input file using `vim` and add the following line.
 ```bash
 59.0916|-137.8717|111 km WSW of Covenant Life, Alaska|6.4
 ```
+
+Now run `cliapp -i some_file_name` again. What happens?
 
 Hopefully `cliapp` generated a non-empty dataset. If you copy the dataset name and paste it onto the end of your URI in your web browser, you should see something on the map.
 
