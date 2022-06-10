@@ -13,7 +13,12 @@
 
 You should now be connected to the remote VM. Try a few simple shell commands to confirm you're connected.
 
-The preferred method of connecting is with SSH keys. This removes the need to provide a username and password every time, is more secure and is easier to administrate. (If you've forgotten how to setup an SSH key please follow [this guide](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key), following only the four steps under "Generating a new SSH key").
+The preferred method of connecting is with SSH keys. This removes the need to provide a username and password every time, is more secure and is easier to administrate.
+
+If you don't have an SSH key you can set one up following [this guide](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key)
+
+* Only follow the "Generating a new SSH key" section
+* For the purposes of the workshop we suggest you do not use a password on your key (leave it blank)
 
 You should add your **public key** on a new line of the `authorized_keys` file on the remote VM.
 
@@ -81,6 +86,7 @@ Now we know how to feed data into Chimera, we need to work out how to do this mo
 We want to use [USGS](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) as our source. They have various regularly updated feeds. Start off using the [hourly feed](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson). Try using the command line to fetch the data and then convert it to the pipe delimited format that `cliapp` can read.
 
 #### **Tips:**
+
 * Use `curl` to save a copy of the JSON feed locally (it's quicker than downloading it every time). Use the `-o` option to specify a file to save it to.
 * The command line program `jq` is very useful for manipulating JSON data. You can find its manual [here](https://stedolan.github.io/jq/manual/).
   * There is also this [Cheatsheet](https://lzone.de/cheat-sheet/jq) that provides helpful examples.
@@ -147,6 +153,7 @@ Make it executable (run `chmod +x your_script.sh`) and then try executing it (ru
 * Use `cliapp` to generate a dataset that the web app can display.
 
 ### Automation Part 1
+
 When you've written your script we need to automate executing it. You'll want to use `crontab` to call the script on a schedule.
 
 A summary of crontab and some tips:
@@ -188,9 +195,12 @@ In particular, the following may be of assistance:
 </details>
 </details>
 
+### New Requirements (stretch goal)
+
 We've got some requirements from the CEO:
+
 * A dataset should be generated every five minutes, containing earthquakes in the last hour. It should be displayed on the site at `/latest`. <details><summary>Hint</summary> Use the --dataset-name option mentioned in the [cliapp_reference.md](./cliapp_reference.md) to specify a dataset name of "latest".</details>
-* The same data should also be available with a dataset name containing the date and time it was generated. <details><summary>Hint</summary>Use the `date` command. E.g. `date +"%y"` would give you the year.</details> 
+* The same data should also be available with a dataset name containing the date and time it was generated. <details><summary>Hint</summary>Use the `date` command. E.g. `date +"%y"` would give you the year.</details>
 * Any datasets older than 24 hours should be automatically deleted. More recent ones should be kept accessible. <details><summary>Hint</summary>Use the `find` command on the folder containing the datasets. It has options to filter by date/time last modified, and an option to delete the files it finds. The `DATA_FOLDER` environment variable will tell you where the datasets are stored.</details>
 <br>
 
