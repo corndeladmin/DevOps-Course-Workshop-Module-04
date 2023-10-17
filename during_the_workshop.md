@@ -208,7 +208,7 @@ When you think your cronjob is working, check! Either look at the "dataset gener
 
 ## Part 2
 
-*If you haven't finished "Automation Part 1" yet, do so before starting the next steps*
+*If you haven't finished "Data Manipulation" yet, do so before starting the next steps*
 
 ### Scaling up
 
